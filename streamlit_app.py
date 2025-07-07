@@ -11,7 +11,7 @@ with col_logo:
 with col_title:
     st.markdown("""
         <h1 style='margin-bottom: 0;'>EC Classification Relativity Search Assistant</h1>
-        <div style='font-size: 16px; color: grey;'>Powered by PCIS+ and OpenAI</div>
+        <div style='font-size: 16px; color: grey;'>Powered by OpenAI API</div>
     """, unsafe_allow_html=True)
 
 # --- Welcome Message ---
@@ -139,14 +139,14 @@ def show_menu3():
 # --- Menu 4 ---
 def show_menu4():
     st.header("📘 How Relativity Search Works")
-    st.markdown("""
-    - This tool compares uploaded work descriptions to a reference dataset.
-    - Matches are based on semantic similarity to EC classification elements.
-    - The match quality is simulated using OpenAI’s embedding model.
-    - Scores above 0.85 generally reflect valid comparators.
-    """)
+
+    with open("MENU_4_EXPLAINER.txt", "r") as f:
+        explanation_text = f.read()
+    st.markdown(explanation_text)
+
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
+
 
 # --- Routing Logic ---
 if st.session_state.menu == "menu1":

@@ -1,0 +1,24 @@
+### 📘 How Relativity Search Works
+
+In classification, a relativity check is the process of comparing a draft work description against similar positions to assess whether its assigned level is appropriate. It focuses on how the job’s duties, complexity, and context compare to others in the same group or level.
+
+This assistant simulates a relativity check using a method inspired by vector databases. Here’s how it works:
+
+- 🧠 Your query — either uploaded or typed — is broken down into key duties, responsibilities, and themes.
+- 📊 Each work description in the dataset has been transformed into a structured record containing the 9 EC classification elements.
+- 🧭 The assistant uses OpenAI’s **text-embedding-3-small** model to generate vector representations of the content, allowing it to compare meaning across documents using internal language embeddings.
+- 🔢 Each result is returned with a simulated similarity score (e.g., 0.89).
+
+#### How to Interpret Similarity Scores
+
+| Score Range | Match Quality       | Interpretation                                                         |
+|-------------|---------------------|------------------------------------------------------------------------|
+| 0.90–1.00   | Very Strong Match   | ≥5 EC elements align; highly similar duties, level, and context        |
+| 0.85–0.89   | Strong Match        | 3–4 EC elements align; clear functional overlap                        |
+| 0.80–0.84   | OK Match            | 2–3 EC elements align; some relevance, but notable divergence          |
+| 0.70–0.79   | Weak Match          | Only 1 EC element aligns; limited overlap                              |
+| < 0.70      | Very Weak Match     | Minimal or no functional similarity; not a valid comparator            |
+
+🧮 These scores are **not calculated using an external vector engine** like FAISS or Pinecone — they're simulated using GPT's internal understanding of semantic distance.
+
+💬 For each match, GPT generates a “Why it’s a match” explanation based on alignment with EC clas
