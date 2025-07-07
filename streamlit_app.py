@@ -75,7 +75,7 @@ def show_menu1():
 
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
-        st.experimental_rerun()
+    st.experimental_rerun()
 
 
 
@@ -85,7 +85,7 @@ def show_menu2():
     st.info("Theme search feature coming soon.")
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
-        st.experimental_rerun()
+    st.experimental_rerun()
 
 # --- Menu 3 ---
 def show_menu3():
@@ -93,7 +93,7 @@ def show_menu3():
     st.info("Level browser feature coming soon.")
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
-        st.experimental_rerun()
+    st.experimental_rerun()
 
 # --- Menu 4 ---
 def show_menu4():
@@ -105,7 +105,7 @@ def show_menu4():
 
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
-        st.experimental_rerun()
+    st.experimental_rerun()
 
 # --- Routing Logic ---
 menu = st.session_state.get("menu")
