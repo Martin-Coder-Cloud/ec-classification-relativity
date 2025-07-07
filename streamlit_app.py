@@ -15,7 +15,15 @@ st.set_page_config(
 # --- Header with Icon and Title ---
 col_icon, col_title = st.columns([1, 5])
 with col_icon:
-    st.image("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png", width=80)
+    st.markdown(
+        """
+        <div style='padding-top: 12px;'>
+            <img src='4c2fb5e0-96aa-4846-a274-2e5021d1706b.png' width='80'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 with col_title:
     st.markdown(
         "<h1 style='margin-bottom: 0;'>EC Classification Relativity Search Assistant</h1>",
@@ -62,8 +70,7 @@ def show_menu1():
 
     st.markdown("""
     <div style='font-size: 16px;'>
-    📎 <strong>You’ve selected: Upload a Work Description</strong><br><br>
-    Please upload your draft job description in PDF or Word format or paste the text below.<br><br>
+    Please upload your draft job description in PDF or Word format or paste the text below.<br>
     Once uploaded or pasted, I’ll:<br>
     • Check if the role qualifies for EC classification using the official EC Standard<br>
     • If eligible, extract duties and responsibilities<br>
@@ -125,7 +132,7 @@ def show_menu3():
     • <strong>Key strengths</strong> (e.g., strong Research and Analysis, contextual complexity)<br>
     • <strong>Notes</strong> on why it's a standout match or edge case<br><br>
     This gives you a benchmarking view of what strong EC jobs look like at each level — helpful for relativity discussions, draft development, or classification advice.
-    Please select the EC level you’d like to explore (e.g., EC-03, EC-05, EC-07).<br><br>    
+    <br>    
     </div>
     """, unsafe_allow_html=True)
 
