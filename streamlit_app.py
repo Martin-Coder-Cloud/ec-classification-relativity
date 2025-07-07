@@ -25,12 +25,7 @@ with col_title:
 
 # --- Home Page ---
 def show_home():
-    st.markdown("""
-    <div style='font-size: 16px; padding-top: 0.5em;'>
-        The Classification Relativity Search Assistant is designed to help users identify similar Government of Canada work descriptions in <strong>PCIS+</strong> using semantic similarity.<br><br>
-        This app is powered by the OpenAI API, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""...""", unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown("<div style='font-size:18px; font-weight:600; padding-top:10px;'>To start your relativity search, please select one of the menu options below:</div>", unsafe_allow_html=True)
@@ -41,18 +36,23 @@ def show_home():
         if st.button("📤 Upload a Work Description", use_container_width=True):
             st.session_state.menu = "menu1"
             st.experimental_rerun()
+            return
+
         if st.button("📂 Search by Classification", use_container_width=True):
             st.session_state.menu = "menu3"
             st.experimental_rerun()
+            return
 
     with col2:
         if st.button("🔍 Search by Keywords", use_container_width=True):
             st.session_state.menu = "menu2"
             st.experimental_rerun()
+            return
+
         if st.button("📘 How Relativity Search Works", use_container_width=True):
             st.session_state.menu = "menu4"
             st.experimental_rerun()
-
+            return
 
 # --- Menu 1 ---
 def show_menu1():
@@ -77,6 +77,7 @@ def show_menu1():
     if st.button("🔙 Return to Main Menu – Menu 1"):
         st.session_state.menu = None
         st.experimental_rerun()
+        return
 
 
 # --- Menu 2 ---
@@ -86,6 +87,7 @@ def show_menu2():
     if st.button("🔙 Return to Main Menu – Menu 2"):
         st.session_state.menu = None
         st.experimental_rerun()
+        return
 
 
 # --- Menu 3 ---
@@ -95,7 +97,7 @@ def show_menu3():
     if st.button("🔙 Return to Main Menu – Menu 3"):
         st.session_state.menu = None
         st.experimental_rerun()
-
+        return
 
 # --- Menu 4 ---
 def show_menu4():
@@ -108,6 +110,7 @@ def show_menu4():
     if st.button("🔙 Return to Main Menu – Menu 4"):
         st.session_state.menu = None
         st.experimental_rerun()
+        return
 
 
 # --- Routing Logic ---
