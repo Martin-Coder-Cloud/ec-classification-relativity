@@ -22,12 +22,11 @@ with col_title:
 # --- Optional Description (Only on Home Page) ---
 if st.session_state.get("menu") is None:
     st.markdown("""
-    <div style='font-size: 16px; padding-top: 0.5em;'>
-    	The classification relativity search assistant is designed to help users identify similar Government of Canada work descriptions using semantic and classification-level similarity in <strong>PCIS+</strong>. 
-    
-	This app is powered by the OpenAI API, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
-    </div>
-    """, unsafe_allow_html=True)
+<div style='font-size: 16px; padding-top: 0.5em;'>
+    The Classification Relativity Search Assistant is designed to help users identify similar Government of Canada work descriptions in <strong>PCIS+</strong>using semantic and classification-level similarity.<br><br>
+    This app is powered by the OpenAI API, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
+</div>
+""", unsafe_allow_html=True)
 
 # --- API Key Setup ---
 openai.api_key = st.secrets["OPENAI_API_KEY"]
