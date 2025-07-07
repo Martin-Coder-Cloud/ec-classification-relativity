@@ -3,6 +3,9 @@ import openai
 import numpy as np
 from PIL import Image
 
+# --- API Key Setup ---
+openai.api_key = st.secrets["OPENAI_API_KEY"]
+
 # --- Page Setup ---
 st.set_page_config(
     page_title="EC Classification Relativity Search Assistant",
@@ -19,24 +22,14 @@ with col_title:
         unsafe_allow_html=True
     )
 
-# --- Optional Description (Only on Home Page) ---
-if st.session_state.get("menu") is None:
+def show_home():
     st.markdown("""
-<div style='font-size: 16px; padding-top: 0.5em;'>
-    The Classification Relativity Search Assistant is designed to help users identify similar Government of Canada work descriptions in <strong>PCIS+</strong>using semantic and classification-level similarity.<br><br>
-    This app is powered by the OpenAI API, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
-</div>
-""", unsafe_allow_html=True)
+    <div style='font-size: 16px; padding-top: 0.5em;'>
+        The Classification Relativity Search Assistant is designed to help users identify similar Government of Canada work descriptions in <strong>PCIS+</strong> using semantic similarity.<br><br>
+        This app is powered by the OpenAI API, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
+    </div>
+    """, unsafe_allow_html=True)
 
-# --- API Key Setup ---
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-
-# --- Session Setup ---
-# --- Menu Button Layout (2x2 Grid) ---
-if "menu" not in st.session_state:
-    st.session_state.menu = None
-
-if st.session_state.menu is None:
     st.markdown("---")
     st.markdown("<div style='font-size:18px; font-weight:600; padding-top:10px;'>To start your relativity search, please select one of the menu options below:</div>", unsafe_allow_html=True)
 
@@ -45,12 +38,14 @@ if st.session_state.menu is None:
     with col1:
         if st.button("📤 Upload a Work Description", use_container_width=True):
             st.session_state.menu = "menu1"
-        if st.button("📂 Search by Classification", use_container_width=True):
-            st.session_state.menu = "menu3"
-
     with col2:
         if st.button("🔍 Search by Keywords", use_container_width=True):
             st.session_state.menu = "menu2"
+
+    with col1:
+        if st.button("📂 Search by Classification", use_container_width=True):
+            st.session_state.menu = "menu3"
+    with col2:
         if st.button("📘 How Relativity Search Works", use_container_width=True):
             st.session_state.menu = "menu4"
 
@@ -152,12 +147,17 @@ def show_menu4():
         st.session_state.menu = None
 
 # --- Routing Logic ---
-if st.session_state.get("menu") == "menu1":
+menu = st.session_state.get("menu")
+
+if menu == "menu1":
     show_menu1()
-elif st.session_state.get("menu") == "menu2":
+elif menu == "menu2":
     show_menu2()
-elif st.session_state.get("menu") == "menu3":
+elif menu == "menu3":
     show_menu3()
-elif st.session_state.get("menu") == "menu4":
+elif menu == "menu4":
     show_menu4()
+else:
+    show_home()
+
 
