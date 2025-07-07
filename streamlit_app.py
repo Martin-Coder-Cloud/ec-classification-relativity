@@ -32,23 +32,26 @@ if st.session_state.get("menu") is None:
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # --- Session Setup ---
+# --- Menu Button Selection (One-Click Fix) ---
 if st.session_state.get("menu") is None:
     st.markdown("---")
     st.markdown("**To start your relativity search, please select one of the menu options below:**")
 
-    menu_choice = st.radio(
-        "",
-        ["Upload a Work Description", "Search by Keywords", "Search by Classification", "How Relativity Search Works"]
-    )
-
-    if menu_choice == "Upload a Work Description":
-        st.session_state.menu = "menu1"
-    elif menu_choice == "Search by Keywords":
-        st.session_state.menu = "menu2"
-    elif menu_choice == "Search by Classification":
-        st.session_state.menu = "menu3"
-    elif menu_choice == "How Relativity Search Works":
-        st.session_state.menu = "menu4"
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📤 Upload a Work Description"):
+            st.session_state.menu = "menu1"
+            st.experimental_rerun()
+        if st.button("📂 Search by Classification"):
+            st.session_state.menu = "menu3"
+            st.experimental_rerun()
+    with col2:
+        if st.button("🔍 Search by Keywords"):
+            st.session_state.menu = "menu2"
+            st.experimental_rerun()
+        if st.button("📘 How Relativity Search Works"):
+            st.session_state.menu = "menu4"
+            st.experimental_rerun()
 
 
 # --- Menu 1: Upload and Compare ---
