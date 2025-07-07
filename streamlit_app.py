@@ -38,19 +38,19 @@ def show_home():
     with col1:
         if st.button("📤 Upload a Work Description", use_container_width=True):
             st.session_state.menu = "menu1"
-	    st.experimental_rerun()
+	st.experimental_rerun()
     with col2:
         if st.button("🔍 Search by Keywords", use_container_width=True):
             st.session_state.menu = "menu2"
-	    st.experimental_rerun()
+	st.experimental_rerun()
     with col1:
         if st.button("📂 Search by Classification", use_container_width=True):
             st.session_state.menu = "menu3"
-	    st.experimental_rerun()
+	st.experimental_rerun()
     with col2:
         if st.button("📘 How Relativity Search Works", use_container_width=True):
             st.session_state.menu = "menu4"
-	    st.experimental_rerun()
+        st.experimental_rerun()
 
 
 
