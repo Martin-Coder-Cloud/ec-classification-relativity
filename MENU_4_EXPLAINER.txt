@@ -1,5 +1,3 @@
-### 📘 How Relativity Search Works
-
 In classification, a relativity check is the process of comparing a draft work description against similar positions to assess whether its assigned level is appropriate. It focuses on how the job’s duties, complexity, and context compare to others in the same group or level.
 
 This assistant simulates a relativity check using a method inspired by vector databases. Here’s how it works:
