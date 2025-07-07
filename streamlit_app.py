@@ -39,9 +39,7 @@ if "menu" not in st.session_state:
 
 if st.session_state.menu is None:
     st.markdown("---")
-   st.markdown("<div style='font-size:18px; font-weight:600; padding-top:10px;'>To start your relativity search, please select one of the menu options below:</div>", unsafe_allow_html=True)
-
-
+    st.markdown("<div style='font-size:18px; font-weight:600; padding-top:10px;'>To start your relativity search, please select one of the menu options below:</div>", unsafe_allow_html=True)
     if st.button("📤 Upload a Work Description", use_container_width=True):
         st.session_state.menu = "menu1"
     if st.button("🔍 Search by Keywords", use_container_width=True):
