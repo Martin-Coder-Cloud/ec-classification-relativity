@@ -53,14 +53,36 @@ def show_home():
 	    st.experimental_rerun()
 
 
+
 # --- Menu 1: Upload and Compare ---
 def show_menu1():
-    st.header("📎 Upload a Work Description")
+    st.header("📎 Upload a Draft Work Description")
+
+    st.markdown("""
+    <div style='font-size: 16px;'>
+    📎 <strong>You’ve selected: Upload a Work Description</strong><br><br>
+    Please upload your draft job description in PDF or Word format or paste the text here.<br><br>
+    Once uploaded, I’ll:<br>
+    • Check if the role qualifies for EC classification using the official EC Standard<br>
+    • If eligible, extract duties and responsibilities<br>
+    • Compare it to existing EC jobs<br>
+    • Return the top 3–5 most relevant comparators based on classification and functional similarity<br><br>
+    I’ll then ask you to select one to view the full structured summary.<br><br>
+    🔁 Type <strong>menu</strong> at any time to return to the main options.
+    </div>
+    """, unsafe_allow_html=True)
+
     uploaded_file = st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
+    user_input = st.text_area("Or paste your job description here:")
+
+    text = None
     if uploaded_file:
         text = uploaded_file.read().decode("utf-8", errors="ignore")
         st.success("File uploaded successfully.")
+    elif user_input:
+        text = user_input
 
+    if text:
         user_embedding = openai.embeddings.create(input=[text], model="text-embedding-3-small").data[0].embedding
 
         comparator_db = [
@@ -121,8 +143,10 @@ def show_menu1():
         st.subheader("Comparator Results")
         st.table(results)
 
-        if st.button("🔙 Return to Main Menu"):
-            st.session_state.menu = None
+    if st.button("🔙 Return to Main Menu"):
+        st.session_state.menu = None
+        st.experimental_rerun()
+
 
 # --- Menu 2 ---
 def show_menu2():
@@ -130,6 +154,7 @@ def show_menu2():
     st.info("Theme search feature coming soon.")
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
+	st.experimental_rerun()
 
 # --- Menu 3 ---
 def show_menu3():
@@ -137,6 +162,7 @@ def show_menu3():
     st.info("Level browser feature coming soon.")
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
+	st.experimental_rerun()
 
 # --- Menu 4 ---
 def show_menu4():
@@ -148,6 +174,7 @@ def show_menu4():
 
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
+	st.experimental_rerun()
 
 # --- Routing Logic ---
 menu = st.session_state.get("menu")
