@@ -22,6 +22,8 @@ with col_title:
         unsafe_allow_html=True
     )
 
+
+# --- Home Page ---
 def show_home():
     st.markdown("""
     <div style='font-size: 16px; padding-top: 0.5em;'>
@@ -39,24 +41,20 @@ def show_home():
         if st.button("📤 Upload a Work Description", use_container_width=True):
             st.session_state.menu = "menu1"
             st.experimental_rerun()
-
-    with col2:
-        if st.button("🔍 Search by Keywords", use_container_width=True):
-            st.session_state.menu = "menu2"
-            st.experimental_rerun()
-
-    with col1:
         if st.button("📂 Search by Classification", use_container_width=True):
             st.session_state.menu = "menu3"
             st.experimental_rerun()
 
     with col2:
+        if st.button("🔍 Search by Keywords", use_container_width=True):
+            st.session_state.menu = "menu2"
+            st.experimental_rerun()
         if st.button("📘 How Relativity Search Works", use_container_width=True):
             st.session_state.menu = "menu4"
             st.experimental_rerun()
 
 
-# --- Menu 1: Upload and Compare Placeholder ---
+# --- Menu 1 ---
 def show_menu1():
     st.header("📎 Upload a Draft Work Description")
 
@@ -69,35 +67,34 @@ def show_menu1():
     • If eligible, extract duties and responsibilities<br>
     • Compare it to existing EC jobs<br>
     • Return the top 3–5 most relevant comparators based on classification and functional similarity<br><br>
-    I’ll then ask you to select one to view the full structured summary.<br><br>
-        """, unsafe_allow_html=True)
+    I’ll then ask you to select one to view the full structured summary.
+    </div>
+    """, unsafe_allow_html=True)
 
     st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
     st.text_area("Or paste your job description here:")
 
-if st.button("🔙 Return to Main Menu"):
-    st.session_state.menu = None
-    st.experimental_rerun()
-
-
+    if st.button("🔙 Return to Main Menu – Menu 1"):
+        st.session_state.menu = None
+        st.experimental_rerun()
 
 
 # --- Menu 2 ---
 def show_menu2():
     st.header("🔍 Search by Keywords")
     st.info("Theme search feature coming soon.")
-if st.button("🔙 Return to Main Menu"):
-    st.session_state.menu = None
-    st.experimental_rerun()
+    if st.button("🔙 Return to Main Menu – Menu 2"):
+        st.session_state.menu = None
+        st.experimental_rerun()
 
 
 # --- Menu 3 ---
 def show_menu3():
     st.header("🧭 Search by Classification")
     st.info("Level browser feature coming soon.")
-if st.button("🔙 Return to Main Menu"):
-    st.session_state.menu = None
-    st.experimental_rerun()
+    if st.button("🔙 Return to Main Menu – Menu 3"):
+        st.session_state.menu = None
+        st.experimental_rerun()
 
 
 # --- Menu 4 ---
@@ -106,11 +103,11 @@ def show_menu4():
 
     with open("MENU_4_EXPLAINER.txt", "r") as f:
         explanation_text = f.read()
-    st.markdown(explanation_text)
+    st.markdown(explanation_text, unsafe_allow_html=True)
 
-if st.button("🔙 Return to Main Menu"):
-    st.session_state.menu = None
-    st.experimental_rerun()
+    if st.button("🔙 Return to Main Menu – Menu 4"):
+        st.session_state.menu = None
+        st.experimental_rerun()
 
 
 # --- Routing Logic ---
@@ -126,5 +123,3 @@ elif menu == "menu4":
     show_menu4()
 else:
     show_home()
-
-
