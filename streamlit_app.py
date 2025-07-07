@@ -13,22 +13,18 @@ st.set_page_config(
 )
 
 # --- Header with Icon and Title ---
-col_icon, col_title = st.columns([1, 5])
+# --- Header with Icon and Title ---
+col_icon, col_title = st.columns([1, 6])
+
 with col_icon:
-    st.markdown(
-        """
-        <div style='padding-top: 12px;'>
-            <img src='4c2fb5e0-96aa-4846-a274-2e5021d1706b.png' width='80'>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.image("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png", width=80)
 
 with col_title:
     st.markdown(
-        "<h1 style='margin-bottom: 0;'>EC Classification Relativity Search Assistant</h1>",
+        "<h1 style='margin-bottom: 0; padding-top: 10px;'>EC Classification Relativity Search Assistant</h1>",
         unsafe_allow_html=True
     )
+
 
 # --- Home Page ---
 def show_home():
