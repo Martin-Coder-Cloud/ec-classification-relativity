@@ -1,135 +1,155 @@
 import streamlit as st
 import openai
-import json
+import numpy as np
+from PIL import Image
 
-# --- Configuration ---
-st.set_page_config(page_title="EC Classification Relativity", layout="wide")
-openai.api_key = st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else ""
+# --- Page Setup ---
+st.set_page_config(
+    page_title="EC Classification Relativity Search Assistant",
+    layout="centered"
+)
 
-# --- App Title ---
-st.title("📘 EC Classification Relativity Assistant")
+# --- Load App Icon ---
+st.markdown("<style>img {display: block; margin-left: auto; margin-right: auto;}</style>", unsafe_allow_html=True)
+icon = Image.open("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png")  # Your uploaded image filename
+st.image(icon, width=150)
 
-# --- Sidebar Menu ---
-menu = st.sidebar.radio("Choose a menu option:", [
-    "📎 Menu 1 – Upload a Work Description",
-    "🔍 Menu 2 – Search by Theme",
-    "📊 Menu 3 – Browse by EC Level",
-    "📘 Menu 4 – Relativity Explainer"
-])
+# --- Title & Welcome ---
+st.markdown("<h1 style='text-align: center;'>EC Classification Relativity Search Assistant</h1>", unsafe_allow_html=True)
+st.write("""
+<div style='text-align: center; font-size: 16px;'>
+The classification relativity search assistant is designed to help users identify similar Government of Canada work descriptions using semantic and classification-level similarity in <strong>PCIS+</strong>.
+</div>
+""", unsafe_allow_html=True)
+st.markdown("---")
 
-# --- Sample Comparator DB (to be replaced with real dataset) ---
-comparator_db = [
-    {
-        "job_title": "Policy Analyst",
-        "ec_level": "EC-05",
-        "department": "ESDC",
-        "text": "Develops policies, performs analysis of government programs, and prepares briefing materials.",
-        "view_id": "ec_record_001"
-    },
-    {
-        "job_title": "Evaluation Officer",
-        "ec_level": "EC-04",
-        "department": "PSC",
-        "text": "Conducts program evaluations, manages data collection, and supports reporting to senior officials.",
-        "view_id": "ec_record_002"
-    },
-    {
-        "job_title": "Stakeholder Engagement Advisor",
-        "ec_level": "EC-06",
-        "department": "IRCC",
-        "text": "Facilitates consultations, synthesizes input for policy development, and liaises with external partners.",
-        "view_id": "ec_record_003"
-    }
-]
+# --- API Key Setup ---
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# --- Utilities ---
-def get_embedding(text):
-    response = openai.embeddings.create(
-        input=[text],
-        model="text-embedding-3-small"
-    )
-    return response.data[0].embedding
+# --- Session Setup ---
+if "menu" not in st.session_state:
+    st.session_state.menu = None
 
-def cosine_similarity(a, b):
-    import numpy as np
-    a, b = np.array(a), np.array(b)
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+# --- Navigation Menu ---
+def show_home():
+    st.subheader("Choose an option:")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📎 Upload Work Description", use_container_width=True):
+            st.session_state.menu = "menu1"
+    with col2:
+        if st.button("🔍 Search by Theme", use_container_width=True):
+            st.session_state.menu = "menu2"
+    col3, col4 = st.columns(2)
+    with col3:
+        if st.button("📊 Browse by EC Level", use_container_width=True):
+            st.session_state.menu = "menu3"
+    with col4:
+        if st.button("📘 Relativity Explainer", use_container_width=True):
+            st.session_state.menu = "menu4"
 
-def interpret_score(score):
-    if score >= 0.9:
-        return "Very Strong Match"
-    elif score >= 0.85:
-        return "Strong Match"
-    elif score >= 0.8:
-        return "OK Match"
-    elif score >= 0.75:
-        return "Weak Match"
-    else:
-        return "Very Weak Match"
-
-# --- Menu 1: Upload Work Description ---
-if menu == "📎 Menu 1 – Upload a Work Description":
+# --- Menu 1: Upload & Compare ---
+def show_menu1():
+    st.header("📎 Upload a Work Description")
     uploaded_file = st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
-    
     if uploaded_file:
-        user_text = uploaded_file.read().decode("utf-8", errors="ignore")
-        st.markdown("✅ **File uploaded successfully.** Now analyzing...")
+        text = uploaded_file.read().decode("utf-8", errors="ignore")
+        st.success("File uploaded successfully.")
 
-        user_embedding = get_embedding(user_text)
+        user_embedding = openai.embeddings.create(input=[text], model="text-embedding-3-small").data[0].embedding
+
+        comparator_db = [
+            {
+                "job_title": "Policy Analyst",
+                "ec_level": "EC-05",
+                "department": "ESDC",
+                "text": "Develops policies, performs analysis of government programs, and prepares briefing materials.",
+                "view_id": "ec_record_001"
+            },
+            {
+                "job_title": "Evaluation Officer",
+                "ec_level": "EC-04",
+                "department": "PSC",
+                "text": "Conducts program evaluations, manages data collection, and supports reporting to senior officials.",
+                "view_id": "ec_record_002"
+            },
+            {
+                "job_title": "Stakeholder Engagement Advisor",
+                "ec_level": "EC-06",
+                "department": "IRCC",
+                "text": "Facilitates consultations, synthesizes input for policy development, and liaises with external partners.",
+                "view_id": "ec_record_003"
+            }
+        ]
+
+        def cosine_similarity(a, b):
+            a, b = np.array(a), np.array(b)
+            return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+        def interpret_score(score):
+            if score >= 0.9:
+                return "Very Strong Match"
+            elif score >= 0.85:
+                return "Strong Match"
+            elif score >= 0.8:
+                return "OK Match"
+            elif score >= 0.75:
+                return "Weak Match"
+            else:
+                return "Very Weak Match"
 
         results = []
         for record in comparator_db:
-            comp_emb = get_embedding(record["text"])
-            score = cosine_similarity(user_embedding, comp_emb)
-            match_quality = interpret_score(score)
+            emb = openai.embeddings.create(input=[record["text"]], model="text-embedding-3-small").data[0].embedding
+            score = cosine_similarity(user_embedding, emb)
             results.append({
-                "rank": None,
                 "job_title": record["job_title"],
                 "ec_level": record["ec_level"],
                 "department": record["department"],
                 "score": round(score, 3),
-                "match_quality": match_quality,
-                "why_match": "Simulated match explanation (to be implemented)",
+                "match_quality": interpret_score(score),
                 "view_id": record["view_id"]
             })
 
-        # Sort results
         results = sorted(results, key=lambda x: x["score"], reverse=True)
-        for idx, r in enumerate(results):
-            r["rank"] = idx + 1
 
-        # Display
-        st.subheader("📊 Comparator Results")
-        st.table([{k: r[k] for k in ("rank", "job_title", "ec_level", "department", "score", "match_quality")} for r in results])
+        st.subheader("Comparator Results")
+        st.table(results)
 
-        st.subheader("🧠 Interpretation")
-        top_result = results[0]
-        st.markdown(f"- **Top match:** {top_result['job_title']} ({top_result['ec_level']}) – Score: {top_result['score']} → *{top_result['match_quality']}*")
-        st.markdown("- All results are simulated. Actual EC element matching will be integrated in future versions.")
+        if st.button("🔙 Return to Main Menu"):
+            st.session_state.menu = None
 
-# --- Menu 2: Search by Theme ---
-elif menu == "🔍 Menu 2 – Search by Theme":
-    st.info("🔧 This menu will let you search using keywords or duty statements. Coming next.")
+# --- Placeholder Menus ---
+def show_menu2():
+    st.header("🔍 Search by Theme")
+    st.info("Theme search feature coming soon.")
+    if st.button("🔙 Return to Main Menu"):
+        st.session_state.menu = None
 
-# --- Menu 3: Browse by EC Level ---
-elif menu == "📊 Menu 3 – Browse by EC Level":
-    st.info("🔧 This menu will benchmark your work vs. EC level descriptions. Coming soon.")
+def show_menu3():
+    st.header("📊 Browse by EC Level")
+    st.info("Level browser feature coming soon.")
+    if st.button("🔙 Return to Main Menu"):
+        st.session_state.menu = None
 
-# --- Menu 4: Relativity Explainer ---
-elif menu == "📘 Menu 4 – Relativity Explainer":
+def show_menu4():
+    st.header("📘 Relativity Explainer")
     st.markdown("""
-    ### 🔍 What is a Comparator Match?
-    - Comparator results simulate alignment with EC classification elements.
-    - Matching is based on semantic similarity of duties, responsibilities, and context.
-    - Scores above 0.85 are generally considered valid for advisory purposes.
-
-    ### 🧠 Match Quality Thresholds
-    - 0.90+ → Very Strong Match
-    - 0.85–0.89 → Strong Match
-    - 0.80–0.84 → OK Match
-    - 0.75–0.79 → Weak Match
-    - < 0.75 → Very Weak Match
-
-    *Note: Actual EC compliance checks are advisory only.*
+    - This tool compares uploaded work descriptions to a reference dataset.
+    - Matches are based on alignment with EC classification elements.
+    - Match quality is simulated using semantic embeddings.
     """)
+    if st.button("🔙 Return to Main Menu"):
+        st.session_state.menu = None
 
+# --- Routing ---
+if st.session_state.menu == "menu1":
+    show_menu1()
+elif st.session_state.menu == "menu2":
+    show_menu2()
+elif st.session_state.menu == "menu3":
+    show_menu3()
+elif st.session_state.menu == "menu4":
+    show_menu4()
+else:
+    show_home()
