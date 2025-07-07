@@ -75,6 +75,10 @@ def show_menu1():
 
     st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
     st.text_area("Or paste your job description here:")
+    
+    if st.button("▶️ Submit Work Description"):
+        st.info("Analysis coming soon — this will show top comparators based on similarity.")
+
 
     if st.button("🔙 Return to Main Menu – Menu 1"):
         st.session_state.menu = None
@@ -95,8 +99,11 @@ def show_menu2():
     </div>
     """, unsafe_allow_html=True)
 
-    st.text_area("Enter key responsibilities or job focus:")
+    user_keywords = st.text_input("Enter keywords or themes (e.g., policy, research, engagement):")
 
+    if st.button("▶️ Search by Keywords"):
+        st.info("Search results will appear here — functionality coming soon.")
+   
     if st.button("🔙 Return to Main Menu – Menu 2"):
         st.session_state.menu = None
         st.rerun()
@@ -111,17 +118,21 @@ def show_menu3():
     st.markdown("""
     <div style='font-size: 16px;'>
     🧭 <strong>You’ve selected: Search by Classification</strong><br><br>
-    Please select the EC level you’d like to explore (e.g., EC-03, EC-05, EC-07).<br><br>
+    
     Instead of listing random jobs, I’ll return top-scoring exemplars at that level — ranked by how closely each job aligns to the EC Classification Standard for that level.<br><br>
     For each match, you’ll see:<br>
     • A <strong>Level Fit Score</strong> (0–1.00), simulating how closely the job aligns with EC expectations at that level<br>
     • <strong>Key strengths</strong> (e.g., strong Research and Analysis, contextual complexity)<br>
     • <strong>Notes</strong> on why it's a standout match or edge case<br><br>
     This gives you a benchmarking view of what strong EC jobs look like at each level — helpful for relativity discussions, draft development, or classification advice.
+    Please select the EC level you’d like to explore (e.g., EC-03, EC-05, EC-07).<br><br>    
     </div>
     """, unsafe_allow_html=True)
 
-    st.selectbox("Select EC Level", ["EC-01", "EC-02", "EC-03", "EC-04", "EC-05", "EC-06", "EC-07"])
+    selected_level = st.selectbox("Select EC Level", ["EC-01", "EC-02", "EC-03", "EC-04", "EC-05", "EC-06", "EC-07"])
+
+    if st.button("▶️ View Jobs at This Level"):
+        st.info(f"Results for {selected_level} will be shown here — feature coming soon.")
 
     if st.button("🔙 Return to Main Menu – Menu 3"):
         st.session_state.menu = None
