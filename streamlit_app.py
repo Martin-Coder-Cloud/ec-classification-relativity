@@ -68,9 +68,7 @@ def show_menu1():
     • Compare it to existing EC jobs<br>
     • Return the top 3–5 most relevant comparators based on classification and functional similarity<br><br>
     I’ll then ask you to select one to view the full structured summary.<br><br>
-    🔁 Type <strong>menu</strong> at any time to return to the main options.
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
     st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
     st.text_area("Or paste your job description here:")
