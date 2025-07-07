@@ -54,15 +54,15 @@ def show_home():
 
 
 
-# --- Menu 1: Upload and Compare ---
+# --- Menu 1: Upload and Compare Placeholder ---
 def show_menu1():
     st.header("📎 Upload a Draft Work Description")
 
     st.markdown("""
     <div style='font-size: 16px;'>
     📎 <strong>You’ve selected: Upload a Work Description</strong><br><br>
-    Please upload your draft job description in PDF or Word format or paste the text here.<br><br>
-    Once uploaded, I’ll:<br>
+    Please upload your draft job description in PDF or Word format or paste the text below.<br><br>
+    Once uploaded or pasted, I’ll:<br>
     • Check if the role qualifies for EC classification using the official EC Standard<br>
     • If eligible, extract duties and responsibilities<br>
     • Compare it to existing EC jobs<br>
@@ -72,80 +72,13 @@ def show_menu1():
     </div>
     """, unsafe_allow_html=True)
 
-    uploaded_file = st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
-    user_input = st.text_area("Or paste your job description here:")
-
-    text = None
-    if uploaded_file:
-        text = uploaded_file.read().decode("utf-8", errors="ignore")
-        st.success("File uploaded successfully.")
-    elif user_input:
-        text = user_input
-
-    if text:
-        user_embedding = openai.embeddings.create(input=[text], model="text-embedding-3-small").data[0].embedding
-
-        comparator_db = [
-            {
-                "job_title": "Policy Analyst",
-                "ec_level": "EC-05",
-                "department": "ESDC",
-                "text": "Develops policies, performs analysis of government programs, and prepares briefing materials.",
-                "view_id": "ec_record_001"
-            },
-            {
-                "job_title": "Evaluation Officer",
-                "ec_level": "EC-04",
-                "department": "PSC",
-                "text": "Conducts program evaluations, manages data collection, and supports reporting to senior officials.",
-                "view_id": "ec_record_002"
-            },
-            {
-                "job_title": "Stakeholder Engagement Advisor",
-                "ec_level": "EC-06",
-                "department": "IRCC",
-                "text": "Facilitates consultations, synthesizes input for policy development, and liaises with external partners.",
-                "view_id": "ec_record_003"
-            }
-        ]
-
-        def cosine_similarity(a, b):
-            a, b = np.array(a), np.array(b)
-            return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-
-        def interpret_score(score):
-            if score >= 0.9:
-                return "Very Strong Match"
-            elif score >= 0.85:
-                return "Strong Match"
-            elif score >= 0.8:
-                return "OK Match"
-            elif score >= 0.75:
-                return "Weak Match"
-            else:
-                return "Very Weak Match"
-
-        results = []
-        for record in comparator_db:
-            emb = openai.embeddings.create(input=[record["text"]], model="text-embedding-3-small").data[0].embedding
-            score = cosine_similarity(user_embedding, emb)
-            results.append({
-                "job_title": record["job_title"],
-                "ec_level": record["ec_level"],
-                "department": record["department"],
-                "score": round(score, 3),
-                "match_quality": interpret_score(score),
-                "view_id": record["view_id"]
-            })
-
-        results = sorted(results, key=lambda x: x["score"], reverse=True)
-
-        st.subheader("Comparator Results")
-        st.table(results)
+    st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
+    st.text_area("Or paste your job description here:")
 
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
         st.experimental_rerun()
+
 
 
 # --- Menu 2 ---
