@@ -26,7 +26,7 @@ with col_icon:
 
 with col_title:
     st.markdown(
-        "<h1 style='margin-bottom: 0;'>EC Classification Relativity Search Assistant</h1>",
+        "<h1 style='margin-bottom: 0;margin-top: -12px;'>EC Classification Relativity Search Assistant</h1>",
         unsafe_allow_html=True
     )
 
