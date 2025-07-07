@@ -82,7 +82,6 @@ def show_menu1():
         return
 
 # --- Menu 2 ---
-d# --- Menu 2 ---
 def show_menu2():
     st.header("🔍 Search by Keywords")
 
@@ -104,7 +103,7 @@ def show_menu2():
         return
 
 
-# --- Menu 3 ---
+
 # --- Menu 3 ---
 def show_menu3():
     st.header("🧭 Search by Classification")
