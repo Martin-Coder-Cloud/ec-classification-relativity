@@ -3,25 +3,25 @@ import openai
 import numpy as np
 from PIL import Image
 
-# --- Page Setup ---
-st.set_page_config(
-    page_title="EC Classification Relativity Search Assistant",
-    layout="centered"
-)
+# --- Logo + Title Side-by-Side ---
+col_logo, col_title = st.columns([1, 4])
+with col_logo:
+    st.image("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png", width=100)
 
-# --- Load Logo ---
-st.markdown("<style>img {display: block; margin-left: auto; margin-right: auto;}</style>", unsafe_allow_html=True)
-icon = Image.open("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png")
-st.image(icon, width=150)
+with col_title:
+    st.markdown("""
+        <h1 style='margin-bottom: 0;'>EC Classification Relativity Search Assistant</h1>
+        <div style='font-size: 16px; color: grey;'>Powered by PCIS+ and OpenAI</div>
+    """, unsafe_allow_html=True)
 
-# --- App Title & Welcome Message ---
-st.markdown("<h1 style='text-align: center;'>EC Classification Relativity Search Assistant</h1>", unsafe_allow_html=True)
-st.write("""
-<div style='text-align: center; font-size: 16px;'>
+# --- Welcome Message ---
+st.markdown("""
+<div style='text-align: center; font-size: 16px; margin-top: 1.5em;'>
 The classification relativity search assistant is designed to help users identify similar Government of Canada work descriptions using semantic and classification-level similarity in <strong>PCIS+</strong>.
 </div>
 """, unsafe_allow_html=True)
 st.markdown("---")
+
 
 # --- API Key Setup ---
 openai.api_key = st.secrets["OPENAI_API_KEY"]
