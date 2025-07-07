@@ -3,53 +3,53 @@ import openai
 import numpy as np
 from PIL import Image
 
-# --- Logo + Title Side-by-Side ---
-col_logo, col_title = st.columns([1, 4])
-with col_logo:
-    st.image("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png", width=100)
+# --- Page Setup ---
+st.set_page_config(
+    page_title="EC Classification Relativity Search Assistant",
+    layout="centered"
+)
 
+# --- Header with Icon and Title ---
+col_icon, col_title = st.columns([1, 5])
+with col_icon:
+    st.image("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png", width=80)
 with col_title:
+    st.markdown(
+        "<h1 style='margin-bottom: 0;'>EC Classification Relativity Search Assistant</h1>",
+        unsafe_allow_html=True
+    )
+
+# --- Optional Description (Only on Home Page) ---
+if st.session_state.get("menu") is None:
     st.markdown("""
-        <h1 style='margin-bottom: 0;'>EC Classification Relativity Search Assistant</h1>
-        <div style='font-size: 16px; color: grey;'>Powered by OpenAI API</div>
+    <div style='font-size: 16px; padding-top: 0.5em;'>
+    The classification relativity search assistant is designed to help users identify similar Government of Canada work descriptions using semantic and classification-level similarity in <strong>PCIS+</strong>. 
+    This app is powered by the OpenAI API, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
+    </div>
     """, unsafe_allow_html=True)
-
-# --- Welcome Message ---
-st.markdown("""
-<div style='text-align: center; font-size: 16px; margin-top: 1.5em;'>
-The classification relativity search assistant is designed to help users identify similar Government of Canada work descriptions in <strong>PCIS+</strong> using semantic similarity in <strong>PCIS+</strong>.<br><br>
-This app is powered by the <strong>OpenAI API</strong>, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
-</div>
-""", unsafe_allow_html=True)
-st.markdown("---")
-
 
 # --- API Key Setup ---
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # --- Session Setup ---
-if "menu" not in st.session_state:
-    st.session_state.menu = None
+if st.session_state.get("menu") is None:
+    st.markdown("---")
+    st.markdown("**To start your relativity search, please select one of the menu options below:**")
 
-# --- Homepage Navigation ---
-def show_home():
-    st.markdown("### To start your relativity search, please select one of the menu options below:")
+    menu_choice = st.radio(
+        "",
+        ["Upload a Work Description", "Search by Keywords", "Search by Classification", "How Relativity Search Works"]
+    )
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("📎 Upload a Work Description", use_container_width=True):
-            st.session_state.menu = "menu1"
-    with col2:
-        if st.button("🔍 Search by Keywords", use_container_width=True):
-            st.session_state.menu = "menu2"
+    if menu_choice == "Upload a Work Description":
+        st.session_state.menu = "menu1"
+    elif menu_choice == "Search by Keywords":
+        st.session_state.menu = "menu2"
+    elif menu_choice == "Search by Classification":
+        st.session_state.menu = "menu3"
+    elif menu_choice == "How Relativity Search Works":
+        st.session_state.menu = "menu4"
 
-    col3, col4 = st.columns(2)
-    with col3:
-        if st.button("🧭 Search by Classification", use_container_width=True):
-            st.session_state.menu = "menu3"
-    with col4:
-        if st.button("📘 How Relativity Search Works", use_container_width=True):
-            st.session_state.menu = "menu4"
 
 # --- Menu 1: Upload and Compare ---
 def show_menu1():
@@ -147,15 +147,13 @@ def show_menu4():
     if st.button("🔙 Return to Main Menu"):
         st.session_state.menu = None
 
-
 # --- Routing Logic ---
-if st.session_state.menu == "menu1":
+if st.session_state.get("menu") == "menu1":
     show_menu1()
-elif st.session_state.menu == "menu2":
+elif st.session_state.get("menu") == "menu2":
     show_menu2()
-elif st.session_state.menu == "menu3":
+elif st.session_state.get("menu") == "menu3":
     show_menu3()
-elif st.session_state.menu == "menu4":
+elif st.session_state.get("menu") == "menu4":
     show_menu4()
-else:
-    show_home()
+
