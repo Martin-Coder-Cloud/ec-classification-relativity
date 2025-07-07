@@ -18,7 +18,7 @@ col_icon, col_title = st.columns([1, 6])
 
 with col_icon:
     st.markdown(
-        "<div style='padding-top: 10px;'>",
+        "<div style='padding-top: 18px;'>",
         unsafe_allow_html=True
     )
     st.image("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png", width=80)
