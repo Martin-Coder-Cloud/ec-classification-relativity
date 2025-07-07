@@ -23,8 +23,9 @@ with col_title:
 if st.session_state.get("menu") is None:
     st.markdown("""
     <div style='font-size: 16px; padding-top: 0.5em;'>
-    The classification relativity search assistant is designed to help users identify similar Government of Canada work descriptions using semantic and classification-level similarity in <strong>PCIS+</strong>. 
-    This app is powered by the OpenAI API, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
+    	The classification relativity search assistant is designed to help users identify similar Government of Canada work descriptions using semantic and classification-level similarity in <strong>PCIS+</strong>. 
+    
+	This app is powered by the OpenAI API, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
     </div>
     """, unsafe_allow_html=True)
 
@@ -32,22 +33,27 @@ if st.session_state.get("menu") is None:
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # --- Session Setup ---
-# --- Menu Button Selection (One-Click Fix) ---
-# --- Main Menu Buttons (Stable Version, No rerun) ---
+# --- Menu Button Layout (2x2 Grid) ---
 if "menu" not in st.session_state:
     st.session_state.menu = None
 
 if st.session_state.menu is None:
     st.markdown("---")
     st.markdown("<div style='font-size:18px; font-weight:600; padding-top:10px;'>To start your relativity search, please select one of the menu options below:</div>", unsafe_allow_html=True)
-    if st.button("📤 Upload a Work Description", use_container_width=True):
-        st.session_state.menu = "menu1"
-    if st.button("🔍 Search by Keywords", use_container_width=True):
-        st.session_state.menu = "menu2"
-    if st.button("📂 Search by Classification", use_container_width=True):
-        st.session_state.menu = "menu3"
-    if st.button("📘 How Relativity Search Works", use_container_width=True):
-        st.session_state.menu = "menu4"
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("📤 Upload a Work Description", use_container_width=True):
+            st.session_state.menu = "menu1"
+        if st.button("📂 Search by Classification", use_container_width=True):
+            st.session_state.menu = "menu3"
+
+    with col2:
+        if st.button("🔍 Search by Keywords", use_container_width=True):
+            st.session_state.menu = "menu2"
+        if st.button("📘 How Relativity Search Works", use_container_width=True):
+            st.session_state.menu = "menu4"
 
 
 # --- Menu 1: Upload and Compare ---
