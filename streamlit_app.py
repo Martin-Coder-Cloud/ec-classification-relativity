@@ -17,7 +17,8 @@ with col_title:
 # --- Welcome Message ---
 st.markdown("""
 <div style='text-align: center; font-size: 16px; margin-top: 1.5em;'>
-The classification relativity search assistant is designed to help users identify similar Government of Canada work descriptions using semantic and classification-level similarity in <strong>PCIS+</strong>.
+The classification relativity search assistant is designed to help users identify similar Government of Canada work descriptions using semantic and classification-level similarity in <strong>PCIS+</strong>.<br><br>
+This app is powered by the <strong>OpenAI API</strong>, using a vector-based model called <code>text-embedding-3-small</code> to detect meaning-based similarity between work descriptions.
 </div>
 """, unsafe_allow_html=True)
 st.markdown("---")
