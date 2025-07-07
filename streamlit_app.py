@@ -21,7 +21,7 @@ with col_icon:
         "<div style='padding-top: 18px;'>",
         unsafe_allow_html=True
     )
-    st.image("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png", width=80)
+    st.image("4c2fb5e0-96aa-4846-a274-2e5021d1706b.png", width=120)
     st.markdown("</div>", unsafe_allow_html=True)
 
 with col_title:
