@@ -101,6 +101,7 @@ def run_comparator(user_elements, embedded_data, client):
     return sorted(results, key=lambda x: x["Final Score"], reverse=True)[:5]
 
 
+
 def run_menu1_assistant(user_input_text):
     # Step 1: Create a new thread
     thread = openai.beta.threads.create()
@@ -273,8 +274,10 @@ def show_menu1():
             st.warning("Please upload a file or paste job description text.")
             return
 
+
         with st.spinner("Contacting EC Assistant..."):
-            user_elements = extract_ec_elements(user_input, ASSISTANT_ID, client)
+        st.write("📝 Submitted input (preview):", user_input[:1000])
+        user_elements = extract_ec_elements(user_input, ASSISTANT_ID, client)
 
         if user_elements:
             st.success("✅ EC Elements Extracted")
