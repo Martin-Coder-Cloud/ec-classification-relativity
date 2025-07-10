@@ -3,3 +3,4 @@ openai
 numpy
 Pillow
 python-docx
+gdown
