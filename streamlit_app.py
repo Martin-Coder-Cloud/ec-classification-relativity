@@ -1,19 +1,105 @@
 import streamlit as st
 import openai
-import numpy as np
 from PIL import Image
 import time
-
 from docx import Document  # ✅ Add this line here
+import pickle
+import requests
+import json                # Likely already present; skip if so
+import numpy as np         # Needed for cosine similarity
+from numpy.linalg import norm  # Needed for cosine similarity
+import streamlit as st
+
+@st.cache_data(show_spinner="📥 Downloading EC embeddings from Drive...")
+def load_embeddings_from_drive():
+    file_id = "19a3pAir7P2Qv094-70sw9Q0B83Fn5qiP"  # ✅ Your actual file ID
+    url = f"https://drive.google.com/uc?export=download&id={file_id}"
+
+    response = requests.get(url)
+    if response.status_code != 200:
+        st.error("❌ Failed to download embeddings from Google Drive.")
+        return None
+
+    with open("ec_embeddings.pkl", "wb") as f:
+        f.write(response.content)
+
+    with open("ec_embeddings.pkl", "rb") as f:
+        return pickle.load(f)
+
+# ✅ Load it once for use in your app
+embedded_data = load_embeddings_from_drive()
 
 
 # --- API Key Setup ---
 openai.api_key = st.secrets["OPENAI_API_KEY"]
-
-import openai
-import time
-
+client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 ASSISTANT_ID = "asst_dglLBL8pS8DzmBtFAv4SOUv2"  # Your Assistant ID from OpenAI
+def cosine_similarity(vec1, vec2):
+    vec1 = np.array(vec1)
+    vec2 = np.array(vec2)
+    return float(np.dot(vec1, vec2) / (norm(vec1) * norm(vec2)))
+
+element_weights = {
+    "Decision Making": 0.21,
+    "Leadership and Operational Management": 0.14,
+    "Communication": 0.18,
+    "Knowledge of Specialized Fields": 0.105,
+    "Contextual Knowledge": 0.105,
+    "Research and Analysis": 0.21,
+    "Physical Effort": 0.015,
+    "Sensory Effort": 0.01,
+    "Working Conditions": 0.025
+}
+
+def interpret_match_quality(score):
+    if score >= 0.90: return "Very Strong Match"
+    elif score >= 0.85: return "Strong Match"
+    elif score >= 0.80: return "OK Match"
+    elif score >= 0.70: return "Weak Match"
+    else: return "Very Weak Match"
+
+def summarize_alignment(sim_scores):
+    aligned = [k for k, v in sim_scores.items() if v >= 0.5]
+    missing = [k for k, v in sim_scores.items() if v < 0.2]
+    return f"Aligned: {', '.join(aligned)}. Missing: {', '.join(missing)}."
+
+def run_comparator(user_elements, embedded_data, client):
+    user_embeddings = {}
+    for element, text in user_elements.items():
+        if text.strip():
+            response = client.embeddings.create(
+                model="text-embedding-3-small",
+                input=text.strip()
+            )
+            user_embeddings[element] = response.data[0].embedding
+        else:
+            user_embeddings[element] = [0.0] * 1536
+
+    results = []
+    for record in embedded_data:
+        sim_scores = {}
+        total_score = 0.0
+
+        for element, weight in element_weights.items():
+            sim = cosine_similarity(user_embeddings[element], record["embeddings"].get(element, [0.0]*1536))
+            sim_scores[element] = sim
+            total_score += weight * sim
+
+        level_penalty = 0.0  # TODO: add EC level logic later
+        subject_penalty = 0.0  # TODO: add subject logic later
+        final_score = total_score - level_penalty - subject_penalty
+
+        results.append({
+            "Job Title": record["Job Title"],
+            "EC Level": record["EC Level"],
+            "Department": record["Department"],
+            "Final Score": round(final_score, 4),
+            "Match Quality": interpret_match_quality(final_score),
+            "Why it’s a Match": summarize_alignment(sim_scores)
+        })
+
+    return sorted(results, key=lambda x: x["Final Score"], reverse=True)[:5]
+
 
 def run_menu1_assistant(user_input_text):
     # Step 1: Create a new thread
@@ -48,6 +134,42 @@ def run_menu1_assistant(user_input_text):
             return message.content[0].text.value
 
     return "⚠️ No assistant response found."
+
+def extract_ec_elements(text, assistant_id, client):
+    thread = client.beta.threads.create()
+    client.beta.threads.messages.create(
+        thread_id=thread.id,
+        role="user",
+        content=(
+            "Please extract the following 9 EC classification elements from this job description:\n"
+            "- Decision Making\n"
+            "- Research and Analysis\n"
+            "- Communication\n"
+            "- Leadership and Operational Management\n"
+            "- Knowledge of Specialized Fields\n"
+            "- Contextual Knowledge\n"
+            "- Physical Effort\n"
+            "- Sensory Effort\n"
+            "- Working Conditions\n\n"
+            "Respond in JSON format with keys matching the EC elements.\n\n"
+            f"Job description:\n{text}"
+        )
+    )
+
+    run = client.beta.threads.runs.create_and_poll(
+        thread_id=thread.id,
+        assistant_id=assistant_id
+    )
+
+    messages = client.beta.threads.messages.list(thread_id=thread.id)
+    response_text = messages.data[0].content[0].text.value
+
+    try:
+        return json.loads(response_text)
+    except json.JSONDecodeError:
+        st.warning("⚠️ Could not parse EC elements. Assistant response:")
+        st.text_area("Raw Assistant Output", response_text, height=300)
+        return None
 
 # --- Page Setup ---
 st.set_page_config(
@@ -128,12 +250,12 @@ def show_menu1():
     uploaded_file = st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
     pasted_text = st.text_area("Or paste your job description here:")
 
-
     if st.button("▶️ Submit Work Description"):
         if uploaded_file is not None:
             file_name = uploaded_file.name
             if file_name.endswith(".docx"):
                 try:
+                    from docx import Document
                     doc = Document(uploaded_file)
                     user_input = "\n".join([para.text for para in doc.paragraphs])
                 except Exception:
@@ -151,9 +273,22 @@ def show_menu1():
             st.warning("Please upload a file or paste job description text.")
             return
 
-        with st.spinner("Analyzing your work description..."):
-            result = run_menu1_assistant(user_input)
-        st.markdown(result)
+        with st.spinner("Contacting EC Assistant..."):
+            user_elements = extract_ec_elements(user_input, ASSISTANT_ID, client)
+
+        if user_elements:
+            st.success("✅ EC Elements Extracted")
+            st.json(user_elements)
+
+            with st.spinner("Calculating best EC matches..."):
+                results = run_comparator(user_elements, embedded_data, client)
+
+            st.markdown("### 📊 Top Comparator Matches")
+            st.dataframe(results)
+
+            st.markdown("✅ Comparator search complete.")
+        else:
+            st.error("❌ Failed to extract EC elements. Please check input or assistant.")
 
 # --- Menu 2 ---
 def show_menu2():
