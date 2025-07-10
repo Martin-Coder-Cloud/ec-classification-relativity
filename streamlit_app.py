@@ -2,6 +2,10 @@ import streamlit as st
 import openai
 import numpy as np
 from PIL import Image
+import time
+
+from docx import Document  # ✅ Add this line here
+
 
 # --- API Key Setup ---
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -124,27 +128,32 @@ def show_menu1():
     uploaded_file = st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
     pasted_text = st.text_area("Or paste your job description here:")
 
-    if st.button("▶️ Submit Work Description"):
-        if uploaded_file is not None:
-           try:
-               user_input = uploaded_file.read().decode("utf-8")
-           except Exception:
-               st.error("❌ Could not read file. Please upload a .docx or .txt file with plain text.")
-               return
 
+    if st.button("▶️ Submit Work Description"):
+    if uploaded_file is not None:
+        file_name = uploaded_file.name
+        if file_name.endswith(".docx"):
+            try:
+                doc = Document(uploaded_file)
+                user_input = "\n".join([para.text for para in doc.paragraphs])
+            except Exception:
+                st.error("❌ Could not parse .docx file. Please ensure it's a readable text document.")
+                return
+        else:
+            try:
+                user_input = uploaded_file.read().decode("utf-8")
+            except Exception:
+                st.error("❌ Could not read .txt file. Please ensure it's encoded in UTF-8.")
+                return
         elif pasted_text.strip():
             user_input = pasted_text
-        else:
-            st.warning("Please upload a file or paste job description text.")
-            return
+    else:
+        st.warning("Please upload a file or paste job description text.")
+        return
 
-        with st.spinner("Analyzing your work description..."):
-            result = run_menu1_assistant(user_input)
-        st.markdown(result)
-
-    if st.button("🔙 Return to Main Menu – Menu 1"):
-        st.session_state.menu = None
-        st.rerun()
+    with st.spinner("Analyzing your work description..."):
+        result = run_menu1_assistant(user_input)
+    st.markdown(result)
 
 # --- Menu 2 ---
 def show_menu2():
