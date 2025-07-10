@@ -130,30 +130,30 @@ def show_menu1():
 
 
     if st.button("▶️ Submit Work Description"):
-    if uploaded_file is not None:
-        file_name = uploaded_file.name
-        if file_name.endswith(".docx"):
-            try:
-                doc = Document(uploaded_file)
-                user_input = "\n".join([para.text for para in doc.paragraphs])
-            except Exception:
-                st.error("❌ Could not parse .docx file. Please ensure it's a readable text document.")
-                return
-        else:
-            try:
-                user_input = uploaded_file.read().decode("utf-8")
-            except Exception:
-                st.error("❌ Could not read .txt file. Please ensure it's encoded in UTF-8.")
-                return
+        if uploaded_file is not None:
+            file_name = uploaded_file.name
+            if file_name.endswith(".docx"):
+                try:
+                    doc = Document(uploaded_file)
+                    user_input = "\n".join([para.text for para in doc.paragraphs])
+                except Exception:
+                    st.error("❌ Could not parse .docx file. Please ensure it's a readable text document.")
+                    return
+            else:
+                try:
+                    user_input = uploaded_file.read().decode("utf-8")
+                except Exception:
+                    st.error("❌ Could not read .txt file. Please ensure it's encoded in UTF-8.")
+                    return
         elif pasted_text.strip():
             user_input = pasted_text
-    else:
-        st.warning("Please upload a file or paste job description text.")
-        return
+        else:
+            st.warning("Please upload a file or paste job description text.")
+            return
 
-    with st.spinner("Analyzing your work description..."):
-        result = run_menu1_assistant(user_input)
-    st.markdown(result)
+        with st.spinner("Analyzing your work description..."):
+            result = run_menu1_assistant(user_input)
+        st.markdown(result)
 
 # --- Menu 2 ---
 def show_menu2():
