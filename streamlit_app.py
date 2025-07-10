@@ -10,9 +10,11 @@ import numpy as np         # Needed for cosine similarity
 from numpy.linalg import norm  # Needed for cosine similarity
 import streamlit as st
 
-@st.cache_data(show_spinner="📥 Downloading EC embeddings from Drive...")
+import gzip
+
+@st.cache_data(show_spinner="📥 Downloading EC embeddings...")
 def load_embeddings_from_drive():
-    file_id = "19a3pAir7P2Qv094-70sw9Q0B83Fn5qiP"  # ✅ Your actual file ID
+    file_id = "1FW9Wn7Kchjb8LXY8JGZJmqPUx4cIqK8z"
     url = f"https://drive.google.com/uc?export=download&id={file_id}"
 
     response = requests.get(url)
@@ -20,12 +22,11 @@ def load_embeddings_from_drive():
         st.error("❌ Failed to download embeddings from Google Drive.")
         return None
 
-    with open("ec_embeddings.pkl", "wb") as f:
+    with open("ec_embeddings.pkl.gz", "wb") as f:
         f.write(response.content)
 
-    with open("ec_embeddings.pkl", "rb") as f:
+    with gzip.open("ec_embeddings.pkl.gz", "rb") as f:
         return pickle.load(f)
-
 # ✅ Load it once for use in your app
 embedded_data = load_embeddings_from_drive()
 
