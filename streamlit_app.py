@@ -120,26 +120,26 @@ def show_menu1():
     </div>
     """, unsafe_allow_html=True)
 
-    st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
-    st.text_area("Or paste your job description here:")
-    
-    if st.button("▶️ Submit Work Description"):
-    if uploaded_file:
-        user_input = uploaded_file.read().decode("utf-8")
-    elif pasted_text.strip():
-        user_input = pasted_text
-    else:
-        st.warning("Please upload a file or paste job description text.")
-        return
+    # ✅ Capture input into variables
+    uploaded_file = st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
+    pasted_text = st.text_area("Or paste your job description here:")
 
-    with st.spinner("Analyzing your work description..."):
-        result = run_menu1_assistant(user_input)
-    st.markdown(result)
+    if st.button("▶️ Submit Work Description"):
+        if uploaded_file:
+            user_input = uploaded_file.read().decode("utf-8")
+        elif pasted_text.strip():
+            user_input = pasted_text
+        else:
+            st.warning("Please upload a file or paste job description text.")
+            return
+
+        with st.spinner("Analyzing your work description..."):
+            result = run_menu1_assistant(user_input)
+        st.markdown(result)
 
     if st.button("🔙 Return to Main Menu – Menu 1"):
         st.session_state.menu = None
         st.rerun()
-        return
 
 # --- Menu 2 ---
 def show_menu2():
