@@ -276,8 +276,8 @@ def show_menu1():
 
 
         with st.spinner("Contacting EC Assistant..."):
-        st.write("📝 Submitted input (preview):", user_input[:1000])
-        user_elements = extract_ec_elements(user_input, ASSISTANT_ID, client)
+            st.write("📝 Submitted input (preview):", user_input[:1000])
+            user_elements = extract_ec_elements(user_input, ASSISTANT_ID, client)
 
         if user_elements:
             st.success("✅ EC Elements Extracted")
