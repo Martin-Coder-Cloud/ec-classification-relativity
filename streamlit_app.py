@@ -6,6 +6,45 @@ from PIL import Image
 # --- API Key Setup ---
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
+import openai
+import time
+
+ASSISTANT_ID = "asst_dglLBL8pS8DzmBtFAv4SOUv2"  # Your Assistant ID from OpenAI
+
+def run_menu1_assistant(user_input_text):
+    # Step 1: Create a new thread
+    thread = openai.beta.threads.create()
+
+    # Step 2: Add user input to the thread
+    openai.beta.threads.messages.create(
+        thread_id=thread.id,
+        role="user",
+        content=user_input_text
+    )
+
+    # Step 3: Run the assistant
+    run = openai.beta.threads.runs.create(
+        thread_id=thread.id,
+        assistant_id=ASSISTANT_ID
+    )
+
+    # Step 4: Wait for run to complete
+    while True:
+        run_status = openai.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
+        if run_status.status == "completed":
+            break
+        elif run_status.status == "failed":
+            return "⚠️ Assistant run failed."
+        time.sleep(1)
+
+    # Step 5: Get assistant message
+    messages = openai.beta.threads.messages.list(thread_id=thread.id)
+    for message in messages.data:
+        if message.role == "assistant":
+            return message.content[0].text.value
+
+    return "⚠️ No assistant response found."
+
 # --- Page Setup ---
 st.set_page_config(
     page_title="EC Classification Relativity Search Assistant",
@@ -85,8 +124,17 @@ def show_menu1():
     st.text_area("Or paste your job description here:")
     
     if st.button("▶️ Submit Work Description"):
-        st.info("Analysis coming soon — this will show top comparators based on similarity.")
+    if uploaded_file:
+        user_input = uploaded_file.read().decode("utf-8")
+    elif pasted_text.strip():
+        user_input = pasted_text
+    else:
+        st.warning("Please upload a file or paste job description text.")
+        return
 
+    with st.spinner("Analyzing your work description..."):
+        result = run_menu1_assistant(user_input)
+    st.markdown(result)
 
     if st.button("🔙 Return to Main Menu – Menu 1"):
         st.session_state.menu = None
