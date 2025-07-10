@@ -125,8 +125,13 @@ def show_menu1():
     pasted_text = st.text_area("Or paste your job description here:")
 
     if st.button("▶️ Submit Work Description"):
-        if uploaded_file:
-            user_input = uploaded_file.read().decode("utf-8")
+        if uploaded_file is not None:
+           try:
+               user_input = uploaded_file.read().decode("utf-8")
+           except Exception:
+               st.error("❌ Could not read file. Please upload a .docx or .txt file with plain text.")
+               return
+
         elif pasted_text.strip():
             user_input = pasted_text
         else:
