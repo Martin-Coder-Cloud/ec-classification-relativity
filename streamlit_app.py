@@ -133,6 +133,8 @@ def run_menu1_assistant(user_input_text):
 
     return "⚠️ No assistant response found."
 
+import re  # ✅ Make sure this is imported at the top
+
 def extract_ec_elements(text, assistant_id, client):
     thread = client.beta.threads.create()
     client.beta.threads.messages.create(
@@ -162,8 +164,11 @@ def extract_ec_elements(text, assistant_id, client):
     messages = client.beta.threads.messages.list(thread_id=thread.id)
     response_text = messages.data[0].content[0].text.value
 
+    # ✅ Strip triple backticks and clean the JSON
+    clean_text = re.sub(r"```(?:json)?\s*([\s\S]*?)\s*```", r"\1", response_text).strip()
+
     try:
-        return json.loads(response_text)
+        return json.loads(clean_text)
     except json.JSONDecodeError:
         st.warning("⚠️ Could not parse EC elements. Assistant response:")
         st.text_area("Raw Assistant Output", response_text, height=300)
