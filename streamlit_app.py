@@ -241,6 +241,7 @@ def show_menu1():
     if "last_results" not in st.session_state:
         st.session_state.last_results = []
 
+    # ---------- PAGE: UPLOAD ----------
     if st.session_state.view == "upload":
         st.header("📎 Upload a Draft Work Description")
         st.markdown("""
@@ -250,8 +251,7 @@ def show_menu1():
         • Check if the role qualifies for EC classification using the official EC Standard<br>
         • If eligible, extract duties and responsibilities<br>
         • Compare it to existing EC jobs<br>
-        • Return the top 10 most relevant comparators based on classification and functional similarity<br><br>
-        You’ll then be able to view each job in full.
+        • Return the top matches based on classification and functional similarity
         </div>
         """, unsafe_allow_html=True)
 
@@ -287,28 +287,57 @@ def show_menu1():
                 with st.spinner("Calculating best EC matches..."):
                     results = run_comparator(user_elements, embedded_data, client)
                     results = sorted(results, key=lambda x: x["Final Score"], reverse=True)
+
+                    for i, r in enumerate(results):
+                        r["#"] = i + 1
+                        r["Link"] = f"[{r['Job Title']}](?job_id={i})"
+
                     st.session_state.last_results = results
                     st.session_state.view = "results"
+                    st.session_state.results_displayed = 10
                     st.rerun()
             else:
                 st.error("❌ Failed to extract EC elements. Please check input or assistant.")
 
+    # ---------- PAGE: RESULTS ----------
     elif st.session_state.view == "results":
         results = st.session_state.last_results
         display_limit = st.session_state.results_displayed
+        display_results = results[:display_limit]
 
         st.markdown("### 📊 Top Comparator Matches (sorted by score)")
 
-        # 1. Canvas table
-        st.dataframe(results[:display_limit])
+        # 1. DataFrame Table (canvas-style)
+        display_df = [
+            {
+                "#": r["#"],
+                "Job Title": r["Job Title"],
+                "EC Level": r["EC Level"],
+                "Department": r["Department"],
+                "Final Score": r["Final Score"],
+                "Match Quality": r["Match Quality"],
+                "Why it’s a Match": r["Why it’s a Match"]
+            }
+            for r in display_results
+        ]
+        st.dataframe(display_df)
 
-        # 2. Markdown table version
-        st.markdown("| # | Job Title | EC Level | Department | Score | Match Quality | Why it’s a Match |")
-        st.markdown("|---|------------|----------|------------|--------|----------------|-------------------|")
-        for i, row in enumerate(results[:display_limit]):
-            st.markdown(f"| {i+1} | **{row['Job Title']}** | {row['EC Level']} | {row['Department']} | {row['Final Score']} | {row['Match Quality']} | {row['Why it’s a Match']} |")
+        # 2. Markdown Table (formatted with links)
+        st.markdown("#### 📋 Match Summary Table")
+        st.markdown("""
+        <style>
+        table {width:100%;}
+        th, td {padding: 6px 8px; text-align: left; font-size: 14px;}
+        </style>
+        """, unsafe_allow_html=True)
 
-        # 3. Interpretation
+        table_md = "| # | Job Title | EC Level | Department | Score | Match | Why it’s a Match |\n"
+        table_md += "|---|------------|----------|------------|--------|--------|------------------|\n"
+        for r in display_results:
+            table_md += f"| {r['#']} | {r['Link']} | {r['EC Level']} | {r['Department']} | {r['Final Score']} | {r['Match Quality']} | {r['Why it’s a Match']} |\n"
+        st.markdown(table_md)
+
+        # 3. Interpretation block
         top_score = results[0]['Final Score']
         strong_matches = [r for r in results if r["Final Score"] >= 0.85]
         if top_score >= 0.85:
@@ -317,7 +346,6 @@ def show_menu1():
             interpretation = "⚠️ Top matches fall in the advisory range (0.80–0.84). Use with caution in formal classification."
         else:
             interpretation = "⚠️ No comparators above 0.80. These are advisory only and may not reflect EC classification."
-
         st.markdown(f"**🔎 Interpretation:** {interpretation}")
 
         # 4. Navigation buttons
@@ -327,7 +355,7 @@ def show_menu1():
                 st.session_state.results_displayed += 10
                 st.rerun()
         with col2:
-            if st.button("📤 Upload Another"):
+            if st.button("🔄 Conduct Another Search"):
                 st.session_state.view = "upload"
                 st.session_state.results_displayed = 10
                 st.session_state.last_results = []
