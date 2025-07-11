@@ -234,7 +234,7 @@ def show_home():
         return
 # --- Menu 1 ---
 def show_menu1():
-    st.warning("🧪 You are seeing the NEW `show_menu1()`")
+    st.warning("**PROTOTYPE**`show_menu1()`")
     if "view" not in st.session_state:
         st.session_state.view = "upload"
     if "results_displayed" not in st.session_state:
@@ -302,9 +302,10 @@ def show_menu1():
 
     # ---------- PAGE: RESULTS ----------
     elif st.session_state.view == "results":
-        results = st.session_state.last_results
+        all_results = st.session_state.last_results
         display_limit = st.session_state.results_displayed
-        display_results = results[:display_limit]
+        display_results = all_results[:display_limit]
+
 
         st.markdown("### 📊 Top Comparator Matches (sorted by score)")
 
@@ -365,7 +366,7 @@ def show_menu1():
             if st.button("🔙 Return to Main Menu"):
                 st.session_state.menu = None
                 st.session_state.view = "upload"
-                st.session_state.results_displayed = 10
+                st.session_state.results_displayed = 5
                 st.session_state.last_results = []
                 st.rerun()
 
