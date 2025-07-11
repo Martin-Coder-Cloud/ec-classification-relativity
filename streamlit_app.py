@@ -383,6 +383,52 @@ def show_menu4():
         st.session_state.menu = None
         st.rerun()
         return
+# --- Home Page ---
+def show_home():
+    st.header("🏠 EC Classification Relativity Search Assistant")
+
+    st.markdown("""
+    <div style='font-size: 16px; line-height: 1.6;'>
+
+    The <strong>EC Classification Relativity Search Assistant</strong> is designed to help Government of Canada classification advisors find high-quality comparator work descriptions within the <strong>Economics and Social Science Services (EC)</strong> group.
+
+    <br><br>
+
+    This prototype uses <strong>semantic similarity</strong> and <strong>classification-aligned evaluation logic</strong> to compare new or draft work descriptions against an internal EC dataset. Each record is evaluated using the nine official EC classification elements (e.g., Decision Making, Research and Analysis, Communication) and scored for alignment.
+
+    <br><br>
+
+    ⚙️ <strong>Powered by:</strong><br>
+    • <strong>OpenAI GPT-4 API</strong> – for natural language understanding and EC element extraction<br>
+    • <strong>OpenAI Embeddings (text-embedding-3-small)</strong> – for deep semantic comparison across job descriptions<br>
+    • <strong>Weighted EC element scoring</strong> – using official EC evaluation weights to simulate classification reasoning<br><br>
+
+    🧠 Unlike keyword search, this tool compares jobs based on meaning, complexity, and classification fit — helping advisors save time, improve consistency, and make better-informed level recommendations.
+
+    <br><br>
+
+    <strong>To begin your relativity search, select one of the menu options below:</strong>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        if st.button("📎 Upload a Work Description"):
+            st.session_state.menu = "menu1"
+            st.rerun()
+    with col2:
+        if st.button("🔤 Search by Keywords"):
+            st.session_state.menu = "menu2"
+            st.rerun()
+    with col3:
+        if st.button("🧭 Search by Classification"):
+            st.session_state.menu = "menu3"
+            st.rerun()
+    with col4:
+        if st.button("📘 How Relativity Search Works"):
+            st.session_state.menu = "menu4"
+            st.rerun()
 
 # --- Routing Logic ---
 menu = st.session_state.get("menu")
