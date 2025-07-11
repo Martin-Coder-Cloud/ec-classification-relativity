@@ -200,45 +200,13 @@ with col_title:
 
 
 # --- Home Page ---
-def show_home():
-    st.markdown("""
-    <div style='font-size: 16px; padding-top: 0.5em;'>
-        The Classification Relativity Search Assistant is designed to help users identify similar Government of Canada work descriptions in <strong>PCIS+</strong> using semantic similarity.<br><br>
-        This app is powered by the OpenAI API, using a vector-based model called <strong>text-embedding-3-small</strong> to detect meaning-based similarity between work descriptions.
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.markdown("<div style='font-size:18px; font-weight:600; padding-top:10px;'>To start your relativity search, please select one of the menu options below:</div>", unsafe_allow_html=True)
-
-    col1, col2 = st.columns(2)
-
-    if col1.button("📤 Upload a Work Description", use_container_width=True):
-        st.session_state.menu = "menu1"
-        st.rerun()
-        return
-
-    if col2.button("🔍 Search by Keywords", use_container_width=True):
-        st.session_state.menu = "menu2"
-        st.rerun()
-        return
-
-    if col1.button("📂 Search by Classification", use_container_width=True):
-        st.session_state.menu = "menu3"
-        st.rerun()
-        return
-
-    if col2.button("📘 How Relativity Search Works", use_container_width=True):
-        st.session_state.menu = "menu4"
-        st.rerun()
-        return
-# --- Menu 1 ---
 def show_menu1():
-    st.warning("**PROTOTYPE**`show_menu1()`")
+    st.warning("🧪 You are seeing the NEW `show_menu1()`")
+
     if "view" not in st.session_state:
         st.session_state.view = "upload"
     if "results_displayed" not in st.session_state:
-        st.session_state.results_displayed = 10
+        st.session_state.results_displayed = 5
     if "last_results" not in st.session_state:
         st.session_state.last_results = []
 
@@ -247,11 +215,12 @@ def show_menu1():
         st.header("📎 Upload a Draft Work Description")
         st.markdown("""
         <div style='font-size: 16px;'>
-        Please upload your draft job description in PDF or Word format or paste the text below.<br>
-        Once uploaded or pasted, I’ll:<br>
-        • Check if the role qualifies for EC classification using the official EC Standard<br>
-        • If eligible, extract duties and responsibilities<br>
-        • Compare it to existing EC jobs<br>
+        Please upload your draft job description in Word or paste the text below.<br><br>
+        I will:<br>
+        • Verify EC classification eligibility<br>
+        • Extract duties & EC elements<br>
+        • Compare it to EC dataset<br>
+        • Return the top comparator matches
         </div>
         """, unsafe_allow_html=True)
 
@@ -294,7 +263,7 @@ def show_menu1():
 
                     st.session_state.last_results = results
                     st.session_state.view = "results"
-                    st.session_state.results_displayed = 10
+                    st.session_state.results_displayed = 5
                     st.rerun()
             else:
                 st.error("❌ Failed to extract EC elements. Please check input or assistant.")
@@ -302,63 +271,40 @@ def show_menu1():
     # ---------- PAGE: RESULTS ----------
     elif st.session_state.view == "results":
         all_results = st.session_state.last_results
-        display_limit = st.session_state.results_displayed
+        display_limit = min(st.session_state.results_displayed, 25)
         display_results = all_results[:display_limit]
 
+        st.markdown("### 📊 Top Comparator Matches")
 
-        st.markdown("### 📊 Top Comparator Matches (sorted by score)")
-
-        # 1. DataFrame Table (canvas-style)
-        display_df = [
-            {
-                "#": r["#"],
-                "Job Title": r["Job Title"],
-                "EC Level": r["EC Level"],
-                "Department": r["Department"],
-                "Final Score": r["Final Score"],
-                "Match Quality": r["Match Quality"],
-                "Why it’s a Match": r["Why it’s a Match"]
-            }
-            for r in display_results
-        ]
-        st.dataframe(display_df)
-
-        # 2. Markdown Table (formatted with links)
-        st.markdown("#### 📋 Match Summary Table")
-        st.markdown("""
-        <style>
-        table {width:100%;}
-        th, td {padding: 6px 8px; text-align: left; font-size: 14px;}
-        </style>
-        """, unsafe_allow_html=True)
-
+        # Markdown table only
         table_md = "| # | Job Title | EC Level | Department | Score | Match | Why it’s a Match |\n"
         table_md += "|---|------------|----------|------------|--------|--------|------------------|\n"
         for r in display_results:
             table_md += f"| {r['#']} | {r['Link']} | {r['EC Level']} | {r['Department']} | {r['Final Score']} | {r['Match Quality']} | {r['Why it’s a Match']} |\n"
         st.markdown(table_md)
 
-        # 3. Interpretation block
+        # Interpretation
         top_score = all_results[0]['Final Score']
         strong_matches = [r for r in all_results if r["Final Score"] >= 0.85]
         if top_score >= 0.85:
-            interpretation = f"✅ {len(strong_matches)} comparators scored ≥ 0.85. These are strong matches aligned with EC classification."
+            interp = f"✅ {len(strong_matches)} comparators scored ≥ 0.85. These are strong matches."
         elif top_score >= 0.80:
-            interpretation = "⚠️ Top matches fall in the advisory range (0.80–0.84). Use with caution in formal classification."
+            interp = "⚠️ Top matches are in the advisory range (0.80–0.84). Use with caution."
         else:
-            interpretation = "⚠️ No comparators above 0.80. These are advisory only and may not reflect EC classification."
-        st.markdown(f"**🔎 Interpretation:** {interpretation}")
+            interp = "⚠️ No comparators above 0.80. These are advisory only."
+        st.markdown(f"**🔎 Interpretation:** {interp}")
 
-        # 4. Navigation buttons
+        # Navigation Buttons
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("🔁 Show More Matches"):
-                st.session_state.results_displayed += 10
-                st.rerun()
+            if display_limit < 25:
+                if st.button("🔁 Show More Matches"):
+                    st.session_state.results_displayed += 5
+                    st.rerun()
         with col2:
             if st.button("🔄 Conduct Another Search"):
                 st.session_state.view = "upload"
-                st.session_state.results_displayed = 10
+                st.session_state.results_displayed = 5
                 st.session_state.last_results = []
                 st.rerun()
         with col3:
@@ -368,6 +314,7 @@ def show_menu1():
                 st.session_state.results_displayed = 5
                 st.session_state.last_results = []
                 st.rerun()
+
 
 # --- Menu 2 ---
 def show_menu2():
