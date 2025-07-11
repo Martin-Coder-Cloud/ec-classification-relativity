@@ -234,6 +234,7 @@ def show_home():
         return
 # --- Menu 1 ---
 def show_menu1():
+    st.warning("🧪 You are seeing the NEW `show_menu1()`")
     if "view" not in st.session_state:
         st.session_state.view = "upload"
     if "results_displayed" not in st.session_state:
