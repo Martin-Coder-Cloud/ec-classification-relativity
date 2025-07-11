@@ -232,68 +232,113 @@ def show_home():
         st.session_state.menu = "menu4"
         st.rerun()
         return
-
 # --- Menu 1 ---
 def show_menu1():
-    st.header("📎 Upload a Draft Work Description")
+    if "view" not in st.session_state:
+        st.session_state.view = "upload"
+    if "results_displayed" not in st.session_state:
+        st.session_state.results_displayed = 10
+    if "last_results" not in st.session_state:
+        st.session_state.last_results = []
 
-    st.markdown("""
-    <div style='font-size: 16px;'>
-    Please upload your draft job description in PDF or Word format or paste the text below.<br>
-    Once uploaded or pasted, I’ll:<br>
-    • Check if the role qualifies for EC classification using the official EC Standard<br>
-    • If eligible, extract duties and responsibilities<br>
-    • Compare it to existing EC jobs<br>
-    • Return the top 3–5 most relevant comparators based on classification and functional similarity<br><br>
-    I’ll then ask you to select one to view the full structured summary.
-    </div>
-    """, unsafe_allow_html=True)
+    if st.session_state.view == "upload":
+        st.header("📎 Upload a Draft Work Description")
+        st.markdown("""
+        <div style='font-size: 16px;'>
+        Please upload your draft job description in PDF or Word format or paste the text below.<br>
+        Once uploaded or pasted, I’ll:<br>
+        • Check if the role qualifies for EC classification using the official EC Standard<br>
+        • If eligible, extract duties and responsibilities<br>
+        • Compare it to existing EC jobs<br>
+        • Return the top 10 most relevant comparators based on classification and functional similarity<br><br>
+        You’ll then be able to view each job in full.
+        </div>
+        """, unsafe_allow_html=True)
 
-    # ✅ Capture input into variables
-    uploaded_file = st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
-    pasted_text = st.text_area("Or paste your job description here:")
+        uploaded_file = st.file_uploader("Upload a .docx or .txt file", type=["docx", "txt"])
+        pasted_text = st.text_area("Or paste your job description here:")
 
-    if st.button("▶️ Submit Work Description"):
-        if uploaded_file is not None:
-            file_name = uploaded_file.name
-            if file_name.endswith(".docx"):
+        if st.button("▶️ Submit Work Description"):
+            if uploaded_file is not None:
+                file_name = uploaded_file.name
                 try:
-                    from docx import Document
-                    doc = Document(uploaded_file)
-                    user_input = "\n".join([para.text for para in doc.paragraphs])
+                    if file_name.endswith(".docx"):
+                        doc = Document(uploaded_file)
+                        user_input = "\n".join([para.text for para in doc.paragraphs])
+                    else:
+                        user_input = uploaded_file.read().decode("utf-8")
                 except Exception:
-                    st.error("❌ Could not parse .docx file. Please ensure it's a readable text document.")
+                    st.error("❌ Could not read uploaded file.")
                     return
+            elif pasted_text.strip():
+                user_input = pasted_text
             else:
-                try:
-                    user_input = uploaded_file.read().decode("utf-8")
-                except Exception:
-                    st.error("❌ Could not read .txt file. Please ensure it's encoded in UTF-8.")
-                    return
-        elif pasted_text.strip():
-            user_input = pasted_text
+                st.warning("Please upload a file or paste job description text.")
+                return
+
+            with st.spinner("Contacting EC Assistant..."):
+                st.write("📝 Submitted input (preview):", user_input[:1000])
+                user_elements = extract_ec_elements(user_input, ASSISTANT_ID, client)
+
+            if user_elements:
+                st.success("✅ EC Elements Extracted")
+                st.json(user_elements)
+
+                with st.spinner("Calculating best EC matches..."):
+                    results = run_comparator(user_elements, embedded_data, client)
+                    results = sorted(results, key=lambda x: x["Final Score"], reverse=True)
+                    st.session_state.last_results = results
+                    st.session_state.view = "results"
+                    st.rerun()
+            else:
+                st.error("❌ Failed to extract EC elements. Please check input or assistant.")
+
+    elif st.session_state.view == "results":
+        results = st.session_state.last_results
+        display_limit = st.session_state.results_displayed
+
+        st.markdown("### 📊 Top Comparator Matches (sorted by score)")
+
+        # 1. Canvas table
+        st.dataframe(results[:display_limit])
+
+        # 2. Markdown table version
+        st.markdown("| # | Job Title | EC Level | Department | Score | Match Quality | Why it’s a Match |")
+        st.markdown("|---|------------|----------|------------|--------|----------------|-------------------|")
+        for i, row in enumerate(results[:display_limit]):
+            st.markdown(f"| {i+1} | **{row['Job Title']}** | {row['EC Level']} | {row['Department']} | {row['Final Score']} | {row['Match Quality']} | {row['Why it’s a Match']} |")
+
+        # 3. Interpretation
+        top_score = results[0]['Final Score']
+        strong_matches = [r for r in results if r["Final Score"] >= 0.85]
+        if top_score >= 0.85:
+            interpretation = f"✅ {len(strong_matches)} comparators scored ≥ 0.85. These are strong matches aligned with EC classification."
+        elif top_score >= 0.80:
+            interpretation = "⚠️ Top matches fall in the advisory range (0.80–0.84). Use with caution in formal classification."
         else:
-            st.warning("Please upload a file or paste job description text.")
-            return
+            interpretation = "⚠️ No comparators above 0.80. These are advisory only and may not reflect EC classification."
 
+        st.markdown(f"**🔎 Interpretation:** {interpretation}")
 
-        with st.spinner("Contacting EC Assistant..."):
-            st.write("📝 Submitted input (preview):", user_input[:1000])
-            user_elements = extract_ec_elements(user_input, ASSISTANT_ID, client)
-
-        if user_elements:
-            st.success("✅ EC Elements Extracted")
-            st.json(user_elements)
-
-            with st.spinner("Calculating best EC matches..."):
-                results = run_comparator(user_elements, embedded_data, client)
-
-            st.markdown("### 📊 Top Comparator Matches")
-            st.dataframe(results)
-
-            st.markdown("✅ Comparator search complete.")
-        else:
-            st.error("❌ Failed to extract EC elements. Please check input or assistant.")
+        # 4. Navigation buttons
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button("🔁 Show More Matches"):
+                st.session_state.results_displayed += 10
+                st.rerun()
+        with col2:
+            if st.button("📤 Upload Another"):
+                st.session_state.view = "upload"
+                st.session_state.results_displayed = 10
+                st.session_state.last_results = []
+                st.rerun()
+        with col3:
+            if st.button("🔙 Return to Main Menu"):
+                st.session_state.menu = None
+                st.session_state.view = "upload"
+                st.session_state.results_displayed = 10
+                st.session_state.last_results = []
+                st.rerun()
 
 # --- Menu 2 ---
 def show_menu2():
