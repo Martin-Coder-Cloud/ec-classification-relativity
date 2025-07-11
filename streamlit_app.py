@@ -252,7 +252,6 @@ def show_menu1():
         • Check if the role qualifies for EC classification using the official EC Standard<br>
         • If eligible, extract duties and responsibilities<br>
         • Compare it to existing EC jobs<br>
-        • Return the top matches based on classification and functional similarity
         </div>
         """, unsafe_allow_html=True)
 
@@ -340,8 +339,8 @@ def show_menu1():
         st.markdown(table_md)
 
         # 3. Interpretation block
-        top_score = results[0]['Final Score']
-        strong_matches = [r for r in results if r["Final Score"] >= 0.85]
+        top_score = all_results[0]['Final Score']
+        strong_matches = [r for r in all_results if r["Final Score"] >= 0.85]
         if top_score >= 0.85:
             interpretation = f"✅ {len(strong_matches)} comparators scored ≥ 0.85. These are strong matches aligned with EC classification."
         elif top_score >= 0.80:
