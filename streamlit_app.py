@@ -395,7 +395,7 @@ def show_home():
     ⚙️ <strong>Powered by:</strong><br>
     • <strong>OpenAI GPT-4 API</strong> – for natural language understanding and EC element extraction<br>
     • <strong>OpenAI Embeddings (text-embedding-3-small)</strong> – for deep semantic comparison across job descriptions<br>
-    • <strong>Weighted EC element scoring</strong> – using official EC evaluation weights to simulate classification reasoning<br><br>
+    • <strong>Weighted EC element similarity scoring</strong> – using official EC evaluation weights to determine most relevant work descriptions<br><br>
     🧠 Unlike keyword search, this tool compares jobs based on meaning, complexity, and classification fit — helping advisors save time, improve consistency, and make better-informed level recommendations.
     <strong>To begin your relativity search, select one of the menu options below:</strong>
     </div>
