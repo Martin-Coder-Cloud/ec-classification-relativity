@@ -385,8 +385,6 @@ def show_menu4():
         return
 # --- Home Page ---
 def show_home():
-    st.header("🏠 EC Classification Relativity Search Assistant")
-
     st.markdown("""
     <div style='font-size: 16px; line-height: 1.6;'>
 
